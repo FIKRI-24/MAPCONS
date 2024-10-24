@@ -1,9 +1,23 @@
-const { Kelas } = require('../models'); // Pastikan jalur import benar
+const { Kelas } = require('../models');
 
-// Fungsi untuk membuat kelas baru
+// Fungsi untuk membuat kelas baru dengan upload sampul_kelas
 exports.createKelas = async (req, res) => {
     try {
-        const newKelas = await Kelas.create(req.body);
+        // Cek apakah file sampul_kelas ada dalam request
+        const sampulKelas = req.file ? req.file.filename : null;
+
+        // Buat URL untuk sampul_kelas jika ada file yang di-upload
+        const sampulKelasUrl = sampulKelas ? `${req.protocol}://${req.get('host')}/uploads/${sampulKelas}` : null;
+
+        // Data yang akan disimpan ke database
+        const kelasData = {
+            ...req.body, // Semua data dari req.body
+            sampul_kelas: sampulKelasUrl // Menyimpan URL lengkap sampul_kelas
+        };
+
+        // Membuat kelas baru
+        const newKelas = await Kelas.create(kelasData);
+
         return res.status(201).json(newKelas);
     } catch (error) {
         console.error(error);
@@ -11,7 +25,6 @@ exports.createKelas = async (req, res) => {
     }
 };
 
-// Fungsi lainnya...
 
 // Fungsi untuk mendapatkan semua kelas
 exports.getAllKelas = async (req, res) => {
