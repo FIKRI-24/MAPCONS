@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controller/userscontroller.js');
-const upload = require('../config/uploadconfig.js'); // Mengimpor konfigurasi untuk upload file
+const upload = require('../midelwares/uploads.js'); 
 
 // Rute untuk pendaftaran dengan upload foto profil
 router.post('/register', upload.single('profil'), userController.register);

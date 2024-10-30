@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const PageDetailVideo = () => {
-
-    const [videos, setDetails] = useState([]);
+    const [videos, setVideos] = useState([]); // Perubahan nama dari setDetails menjadi setVideos
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         getDetails();
@@ -14,12 +15,23 @@ const PageDetailVideo = () => {
     const getDetails = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/videos');
-            setDetails(response.data);
-            console.log(response.data); 
+            setVideos(response.data); // Pastikan data yang diterima sudah benar
+            console.log(response.data);
         } catch (error) {
-            console.error('Error fetching videos:', error); 
+            console.error('Error fetching videos:', error);
+            setError('Terjadi kesalahan saat mengambil data video.'); // Set error message
+        } finally {
+            setLoading(false); // Set loading menjadi false setelah pengambilan data
         }
     };
+
+    if (loading) {
+        return <div>Loading...</div>; // Tampilkan loading
+    }
+
+    if (error) {
+        return <div>{error}</div>; // Tampilkan pesan kesalahan jika ada
+    }
 
     return (
         <div className="dashboard">
@@ -52,7 +64,7 @@ const PageDetailVideo = () => {
                     <tbody>
                         {videos.map((video, index) => (
                             <React.Fragment key={video.id_video}>
-                                {video.VideoFiles.map((file, fileIndex) => (
+                                {video.VideoFiles && video.VideoFiles.map((file, fileIndex) => (
                                     <tr key={file.id_file}>
                                         <td>{index + 1}</td>
                                         <td>{file.sub_judul}</td>
@@ -63,9 +75,9 @@ const PageDetailVideo = () => {
                                             </video>
                                         </td>
                                         <td>
-                                        <Link to={`/edit-videos/${file.id_file}`}>
-                                            <button className="button is-small is-info">Edit</button>
-                                        </Link>
+                                            <Link to={`/edit-videos/${file.id_file}`}>
+                                                <button className="button is-small is-info">Edit</button>
+                                            </Link>
                                             <button className="button is-small is-danger">Hapus</button>
                                         </td>
                                     </tr>

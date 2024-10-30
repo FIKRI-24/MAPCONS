@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddVideo = () => {
-  // State untuk menyimpan input data
   const [judul_video, setJudul] = useState("");
   const [keterangan_video, setKeterangan] = useState("");
   const [harga_video, setHarga] = useState("");
@@ -17,16 +16,14 @@ const AddVideo = () => {
 
   const navigate = useNavigate();
 
-  // Handle perubahan file
   const handleSampulChange = (e) => {
     setSampul(e.target.files[0]);
   };
 
   const handleVideoFilesChange = (e) => {
-    setVideoFiles([...e.target.files]); // Bisa upload multiple files
+    setVideoFiles([...e.target.files]); // Bisa upload beberapa file
   };
 
-  // Handle submit form
   const saveVideo = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,40 +35,39 @@ const AddVideo = () => {
     formData.append("harga_video", harga_video);
     formData.append("sampul_video", sampul_video);
 
-    // Ganti nama field ini
+    // Perbarui nama field untuk video
     videoFiles.forEach((file) => {
-      formData.append("video_files", file); 
+      formData.append("video_file", file); // Pastikan ini sesuai dengan backend
     });
 
     try {
-        await axios.post("http://localhost:8082/api/videos", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-        
-        setMessage("Video created successfully!");
-        navigate("/video");
+      await axios.post("http://localhost:8082/api/videos", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      setMessage("Video berhasil ditambahkan!");
+      navigate("/video");
 
-        // Reset form setelah submit
-        setJudul("");
-        setKeterangan("");
-        setHarga("");
-        setSampul(null);
-        setVideoFiles([]);
+      // Reset form setelah submit
+      setJudul("");
+      setKeterangan("");
+      setHarga("");
+      setSampul(null);
+      setVideoFiles([]);
     } catch (error) {
-        if (error.response) {
-            console.error('Error:', error.response.data);
-            setMessage(`Error: ${error.response.data.message || 'Terjadi kesalahan'}`);
-        } else {
-            console.error('Error:', error.message);
-            setMessage('Error: Tidak ada respon dari server');
-        }
+      if (error.response) {
+        console.error('Error:', error.response.data);
+        setMessage(`Error: ${error.response.data.message || 'Terjadi kesalahan'}`);
+      } else {
+        console.error('Error:', error.message);
+        setMessage('Error: Tidak ada respon dari server');
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
 
   return (
     <div className="dashboard">
@@ -133,7 +129,6 @@ const AddVideo = () => {
             <input
               type="file"
               className="form-control"
-              name="video_files"
               onChange={handleVideoFilesChange}
               multiple
             />
@@ -143,7 +138,7 @@ const AddVideo = () => {
           </div>
 
           <button type="submit" className="button is-primary mt-3" disabled={loading}>
-            {loading ? 'Loading...' : 'Add Video'}
+            {loading ? 'Loading...' : 'Tambah Video'}
           </button>
         </form>
       </div>

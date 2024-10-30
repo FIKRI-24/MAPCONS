@@ -26,7 +26,7 @@ const userRoutes = require('./routes/usersroutes.js');
 app.use('/api/users', userRoutes); 
 
 const videoRoutes = require('./routes/videoroutes.js');
-app.use('/api', videoRoutes);
+app.use('/api', videoRoutes);//
 
 
 const kelasRoutes = require('./routes/tb_kelasroutes.js');
