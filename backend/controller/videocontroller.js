@@ -3,7 +3,7 @@ const { Video, VideoFile } = db;
 
 // Menyimpan video baru
 exports.createVideo = async (req, res) => {
-    const { judul_video, keterangan_video, harga_video, sampul_video } = req.body;
+    const { judul_video, keterangan_video, harga_video } = req.body;
 
     // Validasi input
     if (!judul_video) {
@@ -15,11 +15,11 @@ exports.createVideo = async (req, res) => {
             judul_video,
             keterangan_video,
             harga_video,
-            sampul_video,
+            sampul_video: req.files['sampul_video'] ? req.files['sampul_video'][0].path : null, // Ambil path gambar sampul
         });
 
         // Simpan file video ke tabel VideoFile
-        const videoFiles = req.files; // Ambil files dari req.files
+        const videoFiles = req.files['videoFiles']; // Ambil files dari req.files
         if (videoFiles && videoFiles.length > 0) {
             const videoFilePromises = videoFiles.map(file => {
                 // Buat URL untuk video
@@ -42,6 +42,7 @@ exports.createVideo = async (req, res) => {
     }
 };
 
+
 // Mendapatkan semua video beserta file terkait
 exports.getAllVideos = async (req, res) => {
     try {
@@ -62,7 +63,7 @@ exports.getAllVideos = async (req, res) => {
 exports.updateVideo = async (req, res) => {
     const { id } = req.params;
     const { judul_video, keterangan_video, harga_video } = req.body;
-    const videoFiles = req.files; // Ambil files dari req.files
+    const videoFiles = req.files['video_files']; // Ambil files dari req.files berdasarkan nama field
 
     try {
         const video = await Video.findByPk(id);
@@ -73,7 +74,14 @@ exports.updateVideo = async (req, res) => {
         video.judul_video = judul_video;
         video.keterangan_video = keterangan_video;
         video.harga_video = harga_video;
+
         await video.save();
+
+        const sampulVideoFile = req.files['sampul_video'];
+        if (sampulVideoFile && sampulVideoFile.length > 0) {
+            const sampulUrl = `${req.protocol}://${req.get('host')}/uploads/${sampulVideoFile[0].filename}`;
+            await video.update({ sampul_video: sampulUrl }); // Menyimpan URL sampul video
+        }
 
         if (videoFiles && videoFiles.length > 0) {
             // Hapus file lama
@@ -142,5 +150,3 @@ exports.getVideoById = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving video', error: error.message });
     }
 };
-
-//// tes lagi 

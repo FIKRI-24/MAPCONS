@@ -1,7 +1,6 @@
 const multer = require('multer');
-const path = require('path'); // Tambahkan ini
+const path = require('path');
 
-// Konfigurasi penyimpanan menggunakan multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/'); // Tentukan folder penyimpanan
@@ -11,17 +10,23 @@ const storage = multer.diskStorage({
     }
 });
 
-// Filter untuk hanya mengizinkan gambar dan file PDF
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']; // Jenis file yang diizinkan
+    const allowedTypes = [
+        'image/jpeg', 
+        'image/png', 
+        'image/gif', 
+        'application/pdf', 
+        'video/mp4', 
+        'video/avi', 
+        'video/mov'
+    ];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true); // File diizinkan
     } else {
-        cb(new Error('Hanya gambar dan file PDF yang diizinkan!'), false); // File tidak diizinkan
+        cb(new Error('Hanya gambar, file PDF, dan video yang diizinkan!'), false);
     }
 };
 
-// Inisialisasi multer dengan pengaturan di atas
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,

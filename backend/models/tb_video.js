@@ -2,11 +2,10 @@ const { v4: uuidv4 } = require('uuid');
 module.exports = (sequelize, DataTypes) => {
   const Video = sequelize.define('TbVideo', {
     id_video: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,  
       primaryKey: true,
-      autoIncrement: true,
       allowNull: false,
-      defaultValue: () => uuidv4(),
+      defaultValue: uuidv4  
     },
     sampul_video: {
       type: DataTypes.STRING,
@@ -26,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: false,
-    tableName: 'tb_video'  // Pastikan nama tabel sesuai
+    tableName: 'tb_video'  
   });
   return Video;
 };
