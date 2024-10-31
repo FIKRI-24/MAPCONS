@@ -1,21 +1,46 @@
 const { Testi } = require('../models'); // Pastikan path ke model benar
 
+// Fungsi untuk mendapatkan semua testimoni
+exports.getAllTesti = async (req, res) => {
+    try {
+        const testimoni = await Testi.findAll();
+        return res.status(200).json(testimoni);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Terjadi kesalahan saat mengambil testimoni' });
+    }
+};
+
+// Fungsi untuk mendapatkan testimoni berdasarkan ID
+exports.getTestiById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const testi = await Testi.findOne({
+            where: { id_testi: id }
+        });
+
+        if (!testi) {
+            return res.status(404).json({ message: 'Testimoni tidak ditemukan' });
+        }
+
+        return res.status(200).json(testi);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Terjadi kesalahan saat mengambil testimoni' });
+    }
+};
+
 // Fungsi untuk membuat testimoni baru
 exports.createTesti = async (req, res) => {
     try {
-        // Cek apakah file sampul ada dalam request
         const sampulTesti = req.file ? req.file.filename : null;
-
-        // Buat URL untuk sampul jika ada file yang di-upload
         const sampulUrl = sampulTesti ? `${req.protocol}://${req.get('host')}/uploads/${sampulTesti}` : null;
 
-        // Data yang akan disimpan ke database
         const testiData = {
-            ...req.body, // Semua data dari req.body
-            sampul: sampulUrl // Menyimpan URL lengkap sampul
+            ...req.body,
+            sampul: sampulUrl
         };
 
-        // Membuat testimoni baru
         const newTesti = await Testi.create(testiData);
         return res.status(201).json(newTesti);
     } catch (error) {
@@ -28,17 +53,12 @@ exports.createTesti = async (req, res) => {
 exports.updateTesti = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // Cek apakah file sampul ada dalam request
         const sampulTesti = req.file ? req.file.filename : null;
-
-        // Buat URL untuk sampul jika ada file baru yang di-upload
         const sampulUrl = sampulTesti ? `${req.protocol}://${req.get('host')}/uploads/${sampulTesti}` : null;
 
-        // Data yang akan diperbarui
         const testiData = {
-            ...req.body, // Semua data dari req.body
-            sampul: sampulUrl || req.body.sampul // Gunakan sampul yang di-upload atau tetap yang lama
+            ...req.body,
+            sampul: sampulUrl || req.body.sampul
         };
 
         const [updated] = await Testi.update(testiData, {
