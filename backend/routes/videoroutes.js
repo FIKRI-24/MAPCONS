@@ -1,27 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const uploads = require('../midelwares/uploads.js'); // Perbaiki typo 'midelwares' menjadi 'middlewares'
-const videoController = require('../controller/videocontroller.js'); // Sesuaikan dengan nama file dan path
+const videoController = require('../controller/videocontroller.js'); // Pastikan path sesuai
+const upload = require('../midelwares/uploads.js'); 
 
-// Route untuk menambahkan video
-router.post('/videos', 
-    uploads.fields([{ name: 'video_file', maxCount: 10 }, { name: 'sampul_video', maxCount: 1 }]), 
-    videoController.createVideo
-); // Pastikan urutan middleware benar
+// Menambahkan video baru
+router.post('/videos', upload.fields([
+    { name: 'sampul_video', maxCount: 1 }, 
+    { name: 'video_file', maxCount: 10 }
+]), videoController.createVideo);
 
-// Route untuk mendapatkan semua video beserta file
+// Mendapatkan semua video
 router.get('/videos', videoController.getAllVideos);
 
-// Route untuk mengedit video dan file terkait
-router.put('/videos/:id', 
-    uploads.fields([{ name: 'video_file', maxCount: 10 }, { name: 'sampul_video', maxCount: 1 }]), 
-    videoController.updateVideo
-); // Jangan lupa tambahkan middleware untuk upload jika perlu
+// Mendapatkan video berdasarkan ID
+router.get('/videos/:id_video', videoController.getDetailVideo);
 
-// Route untuk menghapus video dan file terkait
+// Mengedit video
+router.put('/videos/:id', upload.fields([
+    { name: 'sampul_video', maxCount: 1 }, 
+    { name: 'video_file', maxCount: 10 }
+]), videoController.updateVideo);
+
+// Menghapus video
 router.delete('/videos/:id', videoController.deleteVideo);
-
-// Route untuk mendapatkan video berdasarkan ID
-router.get('/videos/:id', videoController.getVideoById);
 
 module.exports = router;

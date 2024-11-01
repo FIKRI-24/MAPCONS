@@ -1,57 +1,57 @@
-import SidebarList from './SidebarList';
-import { Link } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import SidebarList from './SidebarList';
+import { Link, useParams } from 'react-router-dom'; 
 
 const PageDetailVideo = () => {
-    const [videos, setVideos] = useState([]); // Perubahan nama dari setDetails menjadi setVideos
+    const { id_video } = useParams();
+    console.log("ID Video:", id_video); // Debugging
+    const [video, setVideo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        getDetails();
-    }, []);
-
-    const getDetails = async () => {
+    const getVideoByPk = useCallback(async () => {
         try {
-            const response = await axios.get('http://localhost:8082/api/videos');
-            setVideos(response.data); // Pastikan data yang diterima sudah benar
-            console.log(response.data);
+            const response = await axios.get(`http://localhost:8082/api/videos/${id_video}`);
+            console.log("Response Data:", response.data); // Debugging
+            setVideo(response.data);
         } catch (error) {
-            console.error('Error fetching videos:', error);
-            setError('Terjadi kesalahan saat mengambil data video.'); // Set error message
+            console.error('Error fetching video:', error.response ? error.response.data : error.message);
+            setError('Terjadi kesalahan saat mengambil data video.');
         } finally {
-            setLoading(false); // Set loading menjadi false setelah pengambilan data
+            setLoading(false);
         }
-    };
+    }, [id_video]);
+
+    useEffect(() => {
+        getVideoByPk();
+    }, [getVideoByPk]);
 
     if (loading) {
-        return <div>Loading...</div>; // Tampilkan loading
+        return <div>Loading...</div>; 
     }
 
     if (error) {
-        return <div>{error}</div>; // Tampilkan pesan kesalahan jika ada
+        return <div>{error}</div>; 
+    }
+
+    if (!video) {
+        return <div>Video tidak ditemukan.</div>; 
     }
 
     return (
         <div className="dashboard">
-            {/* Sidebar */}
             <SidebarList />
-
-            {/* Content Area */}
             <div className="content" style={{ backgroundColor: 'white', padding: '20px' }}>
-                <h1 className="has-text-black text-center">Daftar Video (Detail)</h1>
-                
+                <h1 className="has-text-black text-center">Detail Video</h1>
                 <div style={{ marginBottom: '20px' }}>
-                    <Link to="/video">
+                    <Link to="/videos">
                         <button className="button is-warning">Kembali</button>
                     </Link>
                     <Link to="/add-videos">
                         <button className="button is-primary ml-3">Tambah Video</button>
                     </Link>
                 </div>
-
-                {/* Tabel Data Video */}
                 <table className="table is-fullwidth">
                     <thead>
                         <tr>
@@ -62,33 +62,29 @@ const PageDetailVideo = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {videos.map((video, index) => (
-                            <React.Fragment key={video.id_video}>
-                                {video.VideoFiles && video.VideoFiles.map((file, fileIndex) => (
-                                    <tr key={file.id_file}>
-                                        <td>{index + 1}</td>
-                                        <td>{file.sub_judul}</td>
-                                        <td>
-                                            <video width="320" height="240" controls>
-                                                <source src={file.video_file} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </td>
-                                        <td>
-                                            <Link to={`/edit-videos/${file.id_file}`}>
-                                                <button className="button is-small is-info">Edit</button>
-                                            </Link>
-                                            <button className="button is-small is-danger">Hapus</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </React.Fragment>
+                        {video.file.map((file, index) => (
+                            <tr key={file.video_file}>
+                                <td>{index + 1}</td>
+                                <td>{file.sub_judul}</td>
+                                <td>
+                                    <video width="320" height="240" controls>
+                                        <source src={file.video_file} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </td>
+                                <td>
+                                    <Link to={`/edit-videos/${file.video_file}`}>
+                                        <button className="button is-small is-info">Edit</button>
+                                    </Link>
+                                    <button className="button is-small is-danger">Hapus</button>
+                                </td>
+                            </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
         </div>
     );
-}
+};
 
 export default PageDetailVideo;

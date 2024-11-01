@@ -10,9 +10,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Middleware CORS (untuk mengizinkan akses dari domain yang berbeda)
-app.use(cors());
-
+app.use(cors({
+  origin: 'http://localhost:3000', // Sesuaikan dengan alamat frontend Anda
+}));
 // Menyajikan file statis dari folder 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -25,10 +25,6 @@ app.get('/', (req, res) => {
 const userRoutes = require('./routes/usersroutes.js'); 
 app.use('/api/users', userRoutes); 
 
-const videoRoutes = require('./routes/videoroutes.js');
-app.use('/api', videoRoutes);//
-
-
 const kelasRoutes = require('./routes/tb_kelasroutes.js');
 app.use('/api', kelasRoutes);
 
@@ -38,6 +34,11 @@ app.use('/api', testiRoutes);
 
 const tbEbookRoutes = require('./routes/tb_ebookroutes.js');
 app.use('/api/ebooks', tbEbookRoutes);
+
+const videoRoutes = require('./routes/videoroutes.js');
+app.use('/api', videoRoutes);
+
+
 
 // Port dimana server akan dijalankan
 const PORT = process.env.PORT || 8082;
