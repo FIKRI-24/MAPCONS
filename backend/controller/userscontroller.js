@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Users } = require('../models'); // Sesuaikan dengan path model Anda
-const upload = require('../config/uploadconfig.js'); // Mengimpor konfigurasi multer
+const { Users } = require('../models'); 
+const uploads = require('../midelwares/uploads.js'); 
 
 // Secret key untuk JWT
-const SECRET_KEY = 'your_secret_key'; // Ganti dengan secret key yang lebih kuat
+const SECRET_KEY = 'your_secret_key'; 
 
 // Pendaftaran pengguna dengan upload foto profil
 exports.register = async (req, res) => {
