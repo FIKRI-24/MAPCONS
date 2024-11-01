@@ -5,16 +5,15 @@ import SidebarList from './SidebarList';
 import { Link } from 'react-router-dom';
 
 const EditVideo = () => {
-    const { id } = useParams(); // Ambil ID dari URL
+    const { id } = useParams(); 
     const navigate = useNavigate();
     const [videoData, setVideoData] = useState({
         judul_video: '',
         keterangan_video: '',
-        sampul_video: null, // Ubah ini menjadi null untuk menampung file
+        sampul_video: null, 
         harga_video: ''
     });
     
-
     // Mengambil data video berdasarkan ID
     useEffect(() => {
         const fetchVideo = async () => {
@@ -66,9 +65,9 @@ const EditVideo = () => {
                     'Content-Type': 'multipart/form-data' // Mengatur header untuk form data
                 }
             });
-            navigate('/videos'); // Kembali ke halaman daftar video setelah sukses
+            navigate('/video'); // Kembali ke halaman daftar video setelah sukses
         } catch (error) {
-            console.error('Error updating video:', error.response.data); // Tampilkan respons dari server
+            console.error('Error updating video:', error.response?.data || error.message); // Tampilkan respons dari server
         }
     };
 
@@ -142,5 +141,3 @@ const EditVideo = () => {
 };
 
 export default EditVideo;
-
-///ARRRGGHHHHHHHH

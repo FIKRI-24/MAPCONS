@@ -1,5 +1,7 @@
 import AdminList from "./component/AdminList";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import PageVideo from "./component/PageVideo";
 import PageEbook from "./component/PageEbook";
 import PageKelas from "./component/PageKelas";
@@ -15,6 +17,9 @@ import EditKelas from "./component/EditKelas";
 import EditEbook from "./component/EditEbook";
 import AddEbook from "./component/AddEbook";
 import EditVideos from "./component/EditVideos";
+import AddTestimoni from "./component/AddTestimoni";
+import LandingPage from "./component/landing/LandingPage";
+import DaftarKelas from "./component/lihat_kelas/DaftarKelas";
 
 function App() {
   return (
@@ -32,6 +37,7 @@ function App() {
         {/* add */}
         <Route path="/add-video" element={<AddVideo/>}/>
         <Route path="/edit-video/:id" element={<EditVideo/>}/>
+        
         {/* dihalaman Detail Video */}
         <Route path="/add-videos" element={<AddVideos/>}/>
         <Route path="/edit-videos/:id" element={<EditVideos/>}/>
@@ -43,6 +49,13 @@ function App() {
         {/* E-Book */}
         <Route path="/edit-ebook/:id" element={<EditEbook/>}/>
         <Route path="/add-ebook" element={<AddEbook/>}/>
+
+        {/* Testimoni */}
+        <Route path="/add-testi" element={<AddTestimoni/>}/>
+
+        {/* Landing Page */}
+        <Route path="/landing-page" element={<LandingPage/>}/>
+        <Route path="/daftar-kelas" element={<DaftarKelas/>}/>
       </Routes>
     </BrowserRouter>
   );

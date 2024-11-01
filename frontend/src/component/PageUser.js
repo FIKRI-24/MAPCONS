@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const PageUser = () => {
-  const [user, setUser] = useState([]);
+  const [users, setUser] = useState([]);
 
   useEffect(() => {
     getUser();
@@ -12,7 +12,7 @@ const PageUser = () => {
 
   const getUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8082/api/user');
+      const response = await axios.get('http://localhost:8082/api/users');
       setUser(response.data); 
       console.log(response.data); 
     } catch (error) {
@@ -26,7 +26,7 @@ const PageUser = () => {
 
       {/* Content Area */}
       <div className="content" style={{ backgroundColor: 'white', padding: '20px' }}>
-        <h1 className="has-text-black">Daftar User</h1>
+        <h1 className="has-text-black text-center">Daftar User</h1>
         
         {/* Button Add Video */}
         <div style={{ marginBottom: '20px' }}>
@@ -46,7 +46,7 @@ const PageUser = () => {
             </tr>
           </thead>
           <tbody>
-          {user.map((user, index) => (
+          {users.map((user, index) => (
             <tr key={user.id_user}> 
               <td>{index + 1}</td>
               <td>{user.nama}</td>
