@@ -11,10 +11,16 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'video/mp4') {
-        cb(null, true);
+    // Menambahkan tipe PDF (application/pdf) ke dalam filter
+    if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'video/mp4' ||
+        file.mimetype === 'application/pdf'
+    ) {
+        cb(null, true); // Terima file
     } else {
-        cb(new Error('Invalid file type'), false);
+        cb(new Error('Invalid file type'), false); // Tolak file
     }
 };
 
