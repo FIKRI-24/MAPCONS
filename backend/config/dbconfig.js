@@ -3,7 +3,7 @@ module.exports = {
     HOST: 'localhost',
     USER: 'root',
     PASSWORD: '',
-    DB: 'mepcons',
+    DB: 'mepcons_db',
     dialect: 'mysql',
     pool: {
       max: 5,
