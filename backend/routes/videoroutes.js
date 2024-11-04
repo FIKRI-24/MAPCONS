@@ -16,12 +16,12 @@ router.get('/videos', videoController.getAllVideos);
 router.get('/videos/:id_video', videoController.getDetailVideo);
 
 // Mengedit video
-router.put('/videos/:id', upload.fields([
+router.put('/videos/:id_video', upload.fields([
     { name: 'sampul_video', maxCount: 1 }, 
     { name: 'video_file', maxCount: 10 }
 ]), videoController.updateVideo);
 
 // Menghapus video
-router.delete('/videos/:id', videoController.deleteVideo);
+router.delete('/videos/:id_video', videoController.deleteVideo);
 
 module.exports = router;
