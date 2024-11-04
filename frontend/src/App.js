@@ -12,6 +12,7 @@ import AddVideo from "./component/AddVideo";
 import AddVideos from "./component/AddVideos";
 import PageDetailVideo from "./component/PageDetailVideo";
 import EditVideo from "./component/EditVideo";
+import EditTestimoni from "./component/EditTestimoni";
 import AddKelas from "./component/AddKelas";
 import EditKelas from "./component/EditKelas";
 import EditEbook from "./component/EditEbook";
@@ -32,14 +33,14 @@ function App() {
         <Route path="/user" element={<PageUser/>}/>
         <Route path="/testimoni" element={<PageTestimoni/>}/>
         <Route path="/transaksi" element={<PageTransaksi/>}/>
-        <Route path="/videos" element={<PageDetailVideo/>}/>
+        <Route path="/videos/:id" element={<PageDetailVideo/>}/>
 
         {/* add */}
         <Route path="/add-video" element={<AddVideo/>}/>
         <Route path="/edit-video/:id" element={<EditVideo/>}/>
         
         {/* dihalaman Detail Video */}
-        <Route path="/add-videos" element={<AddVideos/>}/>
+        <Route path="/add-videos/:id" element={<AddVideos />} />
         <Route path="/edit-videos/:id" element={<EditVideos/>}/>
 
         {/* Kelas */}
@@ -52,6 +53,7 @@ function App() {
 
         {/* Testimoni */}
         <Route path="/add-testi" element={<AddTestimoni/>}/>
+        <Route path="/edit-testimoni/:id" element={<EditTestimoni />} />
 
         {/* Landing Page */}
         <Route path="/landing-page" element={<LandingPage/>}/>

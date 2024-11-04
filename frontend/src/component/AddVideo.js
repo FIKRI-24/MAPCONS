@@ -33,10 +33,7 @@ const AddVideo = () => {
     formData.append("judul_video", judul_video);
     formData.append("keterangan_video", keterangan_video);
     formData.append("harga_video", harga_video);
-    formData.append("sampul_video", sampul_video); 
-    // if (sampul_video) {
-    //   formData.append("sampul_video", sampul_video); 
-    // }
+    formData.append("sampul_video", sampul_video);
 
     videoFiles.forEach((file) => {
       formData.append("video_file", file); 
@@ -73,19 +70,19 @@ const AddVideo = () => {
 
   return (
     <div className="dashboard">
-      {/* Sidebar */}
-      <SidebarList/>
-        
+      <SidebarList />
+      
       <div className="content" style={{ padding: '30px' }}>
-        <div style={{ marginBottom: '20px' }}>
-          <Link to="/video">
-            <button className="button is-warning">Kembali</button>
-          </Link>
-        </div>
-        <h2 className="text-center">Form Tambah Video</h2>
-        {message && <div className="alert alert-info">{message}</div>}
-        <form onSubmit={saveVideo}>
-          <div className="form-group">
+        <Link to="/video">
+          <button className="btn btn-warning mb-3">Kembali</button>
+        </Link>
+        
+        <h2 className="text-center mb-4">Form Tambah Video</h2>
+
+        {message && <div className={`alert ${message.includes("Error") ? "alert-danger" : "alert-success"}`}>{message}</div>}
+
+        <form onSubmit={saveVideo} style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div className="form-group mb-3">
             <label>Judul Video</label>
             <input
               type="text"
@@ -96,7 +93,7 @@ const AddVideo = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>Keterangan Video</label>
             <textarea
               className="form-control"
@@ -105,7 +102,7 @@ const AddVideo = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>Harga Video</label>
             <input
               type="number"
@@ -116,18 +113,18 @@ const AddVideo = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>Sampul Video</label>
             <input
               type="file"
               className="form-control"
               onChange={handleSampulChange}
-              accept="image/*" // Accept only images
+              accept="image/*"
               required
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label>File Video</label>
             <input
               type="file"
@@ -142,7 +139,7 @@ const AddVideo = () => {
             </small>
           </div>
 
-          <button type="submit" className="button is-primary mt-3" disabled={loading}>
+          <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
             {loading ? 'Loading...' : 'Add Video'}
           </button>
         </form>

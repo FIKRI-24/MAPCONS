@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";  
 import SidebarList from "./SidebarList";
 import '../style.css';
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate, useParams } from "react-router-dom"; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddVideos = () => {
+    const { id } = useParams(); // Mengambil id_video dari URL
     const [sub_judul, setSubJudul] = useState("");
     const [video_files, setVideoFiles] = useState(null); 
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const AddVideos = () => {
         const formData = new FormData();
         formData.append("sub_judul", sub_judul);
         formData.append("video_files", video_files);
+        formData.append("id_video", id); // Sertakan id_video dalam data yang dikirim
 
         try {
             await axios.post("http://localhost:8082/api/videos", formData, {
@@ -22,7 +24,7 @@ const AddVideos = () => {
                     'Content-Type': 'multipart/form-data', 
                 },
             });
-            navigate ("/videos");
+            navigate("/videos");
         } catch (error) {
             console.log(error.response.data); 
         }
@@ -35,7 +37,7 @@ const AddVideos = () => {
             
             <div className="content" style={{ padding: '30px' }}>
                 <div style={{ marginBottom: '20px' }}>
-                    <Link to="/videos">
+                    <Link to={`/videos/${id}`}>
                         <button className="button is-warning">Kembali</button>
                     </Link>
                 </div>

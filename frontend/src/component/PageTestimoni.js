@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 
 const PageTestimoni = () => {
   const [testimoni, setTestimoni] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedTestimoniId, setSelectedTestimoniId] = useState(null);
 
   useEffect(() => {
     getTestimoni();
@@ -20,6 +23,28 @@ const PageTestimoni = () => {
     }
   };
 
+  const handleDeleteClick = (id) => {
+    setSelectedTestimoniId(id);
+    setShowConfirmModal(true);
+  };
+
+  const deleteTestimoni = async () => {
+    try {
+      await axios.delete(`http://localhost:8082/api/testimoni/${selectedTestimoniId}`);
+      getTestimoni();
+      setShowConfirmModal(false);
+      setShowSuccessModal(true);
+
+      // Set a timeout to close the success modal after 2 seconds
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2000);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="dashboard">
       {/* Sidebar */}
@@ -31,7 +56,9 @@ const PageTestimoni = () => {
         
         {/* Button Add Video */}
         <div style={{ marginBottom: '20px' }}>
-          <button className="button is-primary">Add Testimoni</button>
+          <Link to="/add-testi">
+            <button className="button is-primary">Add Testimoni</button>
+          </Link>
         </div>
 
         {/* Tabel Data Testimoni */}
@@ -51,15 +78,16 @@ const PageTestimoni = () => {
                 <td>{index + 1}</td>
                 <td>{testi.nama_peserta}</td>
                 <td>
-                  <img src={testi.profil} alt="Sampul" width="100" />
+                  <img src={testi.sampul} alt="Sampul" width="100" />
                 </td>
                 <td>{testi.testimoni  }</td> 
                 <td>
-                  <Link to={`/edit-testi/${testi.id_testi}`}>
+                  <Link to={`/edit-testimoni/${testi.id_testi}`}>
                     <button className="button is-small is-info">Edit</button>
                   </Link>
+
                   <button 
-                  // onClick={() => handleDeleteClick(testi.id_testi)}
+                  onClick={() => handleDeleteClick(testi.id_testi)}
                   className="button is-small is-danger">Hapus</button>
                 </td>
               </tr>
@@ -67,6 +95,38 @@ const PageTestimoni = () => {
           </tbody>
           </table>
       </div>
+      {/* Modal Konfirmasi Hapus */}
+      {showConfirmModal && (
+        <div className="modal is-active">
+          <div className="modal-background" onClick={() => setShowConfirmModal(false)}></div>
+          <div className="modal-content">
+            <div className="box">
+              <p className="has-text-centered" style={{ fontSize: '1.2rem', marginBottom: '20px' }}>
+                <span style={{ fontSize: '2rem', color: 'red', marginRight: '10px' }}>✖️</span> Apakah Anda yakin ingin menghapus Testimoni ini?
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+                <button onClick={() => setShowConfirmModal(false)} className="button">Batal</button>
+                <button onClick={deleteTestimoni} className="button is-danger">Hapus</button>
+              </div>
+            </div>
+          </div>
+          <button className="modal-close is-large" aria-label="close" onClick={() => setShowConfirmModal(false)}></button>
+        </div>
+      )}
+
+      {/* Modal Sukses Hapus */}
+      {showSuccessModal && (
+        <div className="modal is-active">
+          <div className="modal-background" onClick={() => setShowSuccessModal(false)}></div>
+          <div className="modal-content">
+            <div className="box has-text-centered">
+              <p style={{ fontSize: '1.5rem', color: 'green', marginBottom: '10px' }}>✔️</p>
+              <p>Testimoni berhasil dihapus!</p>
+            </div>
+          </div>
+          <button className="modal-close is-large" aria-label="close" onClick={() => setShowSuccessModal(false)}></button>
+        </div>
+      )}
     </div>
   )
 }

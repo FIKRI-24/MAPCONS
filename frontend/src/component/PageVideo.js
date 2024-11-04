@@ -34,7 +34,6 @@ const PageVideo = () => {
       setShowConfirmModal(false);
       setShowSuccessModal(true);
 
-      // Set a timeout to close the success modal after 2 seconds
       setTimeout(() => {
         setShowSuccessModal(false);
       }, 2000);
@@ -82,7 +81,7 @@ const PageVideo = () => {
                 <img src={video.sampul_video} alt="Sampul" width="100" />
                 </td>
                 <td>
-                  <Link to="/videos">
+                  <Link to={`/videos/${video.id_video}`}>
                     <button>Detail</button>
                   </Link>
                 </td>

@@ -1,25 +1,31 @@
 import SidebarList from './SidebarList';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const PageDetailVideo = () => {
-
-    const [videos, setDetails] = useState([]);
+    const { id } = useParams(); // Mengambil id dari URL
+    const [videoDetail, setVideoDetail] = useState(null);
 
     useEffect(() => {
+        const getDetails = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8082/api/videos/${id}`);
+                console.log("Response data:", response.data); 
+                
+                setVideoDetail(response.data);
+            } catch (error) {
+                console.error('Error fetching video details:', error); 
+            }
+        };        
+    
         getDetails();
-    }, []);
+    }, [id]);
+    
 
-    const getDetails = async () => {
-        try {
-            const response = await axios.get('http://localhost:8082/api/videos');
-            setDetails(response.data);
-            console.log(response.data); 
-        } catch (error) {
-            console.error('Error fetching videos:', error); 
-        }
-    };
+    if (!videoDetail) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="dashboard">
@@ -28,34 +34,35 @@ const PageDetailVideo = () => {
 
             {/* Content Area */}
             <div className="content" style={{ backgroundColor: 'white', padding: '20px' }}>
-                <h1 className="has-text-black text-center">Daftar Video (Detail)</h1>
+                <h1 className="has-text-black text-center">Detail Video</h1>
                 
                 <div style={{ marginBottom: '20px' }}>
                     <Link to="/video">
                         <button className="button is-warning">Kembali</button>
                     </Link>
-                    <Link to="/add-videos">
+                    <Link to={`/add-videos/${id}`}>
                         <button className="button is-primary ml-3">Tambah Video</button>
                     </Link>
                 </div>
 
-                {/* Tabel Data Video */}
-                <table className="table is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Sub Judul</th>
-                            <th>File Video</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {videos.map((video, index) => (
-                            <React.Fragment key={video.id_video}>
-                                {video.VideoFiles.map((file, fileIndex) => (
-                                    <tr key={file.id_file}>
+                {/* Tampilkan Detail Video */}
+                <div>
+                    {/* Tabel Data VideoFiles */}
+                    <table className="table is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Sub Judul</th>
+                                <th>File Video</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {videoDetail.files && videoDetail.files.length > 0 ? (
+                                videoDetail.files.map((file, index) => (
+                                    <tr key={file.id_file || index}>
                                         <td>{index + 1}</td>
-                                        <td>{file.sub_judul}</td>
+                                        <td>{file.sub_judul || 'Sub judul tidak tersedia'}</td>
                                         <td>
                                             <video width="320" height="240" controls>
                                                 <source src={file.video_file} type="video/mp4" />
@@ -63,20 +70,24 @@ const PageDetailVideo = () => {
                                             </video>
                                         </td>
                                         <td>
-                                        <Link to={`/edit-videos/${file.id_file}`}>
-                                            <button className="button is-small is-info">Edit</button>
-                                        </Link>
+                                            <Link to={`/edit-videos/${id}`}>
+                                                <button className="button is-small is-info">Edit</button>
+                                            </Link>
                                             <button className="button is-small is-danger">Hapus</button>
                                         </td>
                                     </tr>
-                                ))}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" className="has-text-centered">Tidak ada file video untuk video ini</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
-}
+};
 
 export default PageDetailVideo;
