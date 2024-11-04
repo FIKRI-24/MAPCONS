@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddVideos = () => {
     const [sub_judul, setSubJudul] = useState("");
-    const [video_files, setVideoFiles] = useState(null); // Mengubah ini menjadi null untuk menyimpan file
+    const [video_files, setVideoFiles] = useState(null); 
     const navigate = useNavigate();
 
     const saveVideos = async (e) => {
@@ -19,12 +19,12 @@ const AddVideos = () => {
         try {
             await axios.post("http://localhost:8082/api/videos", formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data', // Set header untuk multipart/form-data
+                    'Content-Type': 'multipart/form-data', 
                 },
             });
             navigate ("/videos");
         } catch (error) {
-            console.log(error.response.data); // Tampilkan data error jika ada
+            console.log(error.response.data); 
         }
     };
 

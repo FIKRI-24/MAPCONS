@@ -9,7 +9,7 @@ const AddVideo = () => {
   const [judul_video, setJudul] = useState("");
   const [keterangan_video, setKeterangan] = useState("");
   const [harga_video, setHarga] = useState("");
-  const [sampul_video, setSampul] = useState(null); 
+  const [sampul_video, setSampul] = useState(null);
   const [videoFiles, setVideoFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -21,7 +21,7 @@ const AddVideo = () => {
   };
 
   const handleVideoFilesChange = (e) => {
-    setVideoFiles([...e.target.files]); // Bisa upload beberapa file
+    setVideoFiles([...e.target.files]);
   };
 
   const saveVideo = async (e) => {
@@ -33,21 +33,23 @@ const AddVideo = () => {
     formData.append("judul_video", judul_video);
     formData.append("keterangan_video", keterangan_video);
     formData.append("harga_video", harga_video);
-    formData.append("sampul_video", sampul_video);
+    formData.append("sampul_video", sampul_video); 
+    // if (sampul_video) {
+    //   formData.append("sampul_video", sampul_video); 
+    // }
 
-    // Perbarui nama field untuk video
     videoFiles.forEach((file) => {
-      formData.append("video_file", file); // Pastikan ini sesuai dengan backend
+      formData.append("video_file", file); 
     });
 
     try {
       await axios.post("http://localhost:8082/api/videos", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+          headers: {
+              "Content-Type": "multipart/form-data",
+          },
       });
-      
-      setMessage("Video berhasil ditambahkan!");
+
+      setMessage("Video created successfully!");
       navigate("/video");
 
       // Reset form setelah submit
@@ -58,11 +60,11 @@ const AddVideo = () => {
       setVideoFiles([]);
     } catch (error) {
       if (error.response) {
-        console.error('Error:', error.response.data);
-        setMessage(`Error: ${error.response.data.message || 'Terjadi kesalahan'}`);
+          console.error('Error:', error.response.data);
+          setMessage(`Error: ${error.response.data.message || 'Terjadi kesalahan'}`);
       } else {
-        console.error('Error:', error.message);
-        setMessage('Error: Tidak ada respon dari server');
+          console.error('Error:', error.message);
+          setMessage('Error: Tidak ada respon dari server');
       }
     } finally {
       setLoading(false);
@@ -120,6 +122,7 @@ const AddVideo = () => {
               type="file"
               className="form-control"
               onChange={handleSampulChange}
+              accept="image/*" // Accept only images
               required
             />
           </div>
@@ -129,8 +132,10 @@ const AddVideo = () => {
             <input
               type="file"
               className="form-control"
+              name="video_files"
               onChange={handleVideoFilesChange}
               multiple
+              required
             />
             <small className="form-text text-muted">
               {videoFiles.length > 0 && `${videoFiles.length} file dipilih`}
@@ -138,7 +143,7 @@ const AddVideo = () => {
           </div>
 
           <button type="submit" className="button is-primary mt-3" disabled={loading}>
-            {loading ? 'Loading...' : 'Tambah Video'}
+            {loading ? 'Loading...' : 'Add Video'}
           </button>
         </form>
       </div>
