@@ -1,15 +1,81 @@
-import React from 'react';
 import '../../landing.css'; 
 import Navbar from './Navbar';
-import poster from '../../img/poster.jpg';
 import personal1 from '../../img/personal1.png';
 import personal2 from '../../img/personal2.png';
 import personal3 from '../../img/personal3.png';
 import Footer from './Footer';
 import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css'; 
+import 'slick-carousel/slick/slick-theme.css'; 
 
 
 const LandingPage = () => {
+  const [videos, setVideos] = useState([]);
+  const [ebook, setEbook] = useState([]);
+  const [kelas, setKelas] = useState([]);
+  const [testimoni, setTestimoni] = useState([]);
+
+  useEffect(() => {
+    const getVideos = async () => {
+      try {
+        const response = await axios.get('http://localhost:8082/api/videos');
+        setVideos(response.data.slice(0, 1)); 
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
+    };
+    getVideos();
+
+    const getEbook = async () => {
+      try {
+        const response = await axios.get('http://localhost:8082/api/ebooks');
+        setEbook(response.data.slice(0, 1)); 
+      } catch (error) {
+        console.error('Error fetching ebook:', error);
+      }
+    };
+    getEbook();
+
+    const getKelas = async () => {
+      try {
+        const response = await axios.get('http://localhost:8082/api/kelas');
+        setKelas(response.data.slice(0, 1));
+      } catch (error) {
+        console.error('Error fetching kelas:', error);
+      }
+    };
+    getKelas();
+
+    const getTestimoni = async () => {
+      try {
+        const response = await axios.get('http://localhost:8082/api/testimoni');
+        setTestimoni(response.data);
+      } catch (error) {
+        console.error('Error fetching testimoni:', error);
+      }
+    };
+    getTestimoni();
+  }, []);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
   return (
     <div>
       <Navbar />
@@ -97,44 +163,80 @@ const LandingPage = () => {
       <section className="video_section mb-5">
         <div className="container">
           <div className="row video">
+            {/* Video Section */}
             <div className="col-md-4">
-              <h4 className="text-center mb-2">Kelas</h4>
-              <img src={poster} alt="Logo" className="poster-image" />
-              <h4 className="mt-2 mb-2">Kelas 3D Autocad</h4>
-              <div className="d-flex justify-content-between">
-                <a href="detail_video1.php" className="btn-detail">Detail</a>
-                <p className="text-danger">Rp. 499.000</p>
-              </div>
+              <h3 className="text-center mb-2">Video</h3>
+              {videos.length > 0 ? (
+                videos.map((video, index) => (
+                  <div key={index}>
+                    <img src={video.sampul_video} alt="Poster" className="poster-image" />
+                    <h3 className="mt-2 mb-2">{video.judul_video}</h3>
+                    <div className="d-flex justify-content-between">
+                    <a href="detail_video1.php" className="btn-detail">
+                      <i className="fas fa-hand-point-right"></i> Detail
+                    </a>
+                      <p className="text-danger">{formatPrice(video.harga_video)}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center">Tidak ada video tersedia</p>
+              )}
             </div>
+
+            {/* Ebook Section */}
             <div className="col-md-4">
               <h4 className="text-center mb-2">E-Book</h4>
-              <img src={poster} alt="Logo" className="poster-image" />
-              <h4 className="mt-2 mb-2">Kelas 3D Autocad</h4>
-              <div className="d-flex justify-content-between">
-                <a href="detail_video2.php" className="btn-detail">Detail</a>
-                <p className="text-danger">Rp. 499.000</p>
-              </div>
+              {ebook.length > 0 ? (
+                ebook.map((item, index) => (
+                  <div key={index}>
+                    <img src={item.sampul_ebook} alt="Poster" className="poster-image" />
+                    <h3 className="mt-2 mb-2">{item.judul_ebook}</h3>
+                    <div className="d-flex justify-content-between">
+                      <a href="detail_video1.php" className="btn-detail">
+                      <i className="fas fa-hand-point-right"></i> Detail
+                      </a>
+                      <p className="text-danger">{formatPrice(item.harga_ebook)}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center">Tidak ada e-book tersedia</p>
+              )}
             </div>
+
+            {/* Kelas Section */}
             <div className="col-md-4">
-              <h4 className="text-center mb-2">Video</h4>
-              <img src={poster} alt="Logo" className="poster-image" />
-              <h4 className="mt-2 mb-2">Kelas 3D Autocad</h4>
-              <div className="d-flex justify-content-between">
-                <a href="detail_video3.php" className="btn-detail">Detail</a>
-                <p className="text-danger">Rp. 499.000</p>
-              </div>
+              <h4 className="text-center mb-2">Kelas</h4>
+              {kelas.length > 0 ? (
+                kelas.map((kelasItem, index) => (
+                  <div key={index}>
+                    <img src={kelasItem.sampul_kelas} alt="Poster" className="poster-image" />
+                    <h3 className="mt-2 mb-2">{kelasItem.judul_kelas}</h3>
+                    <div className="d-flex justify-content-between">
+                      <a href="detail_video1.php" className="btn-detail">
+                      <i className="fas fa-hand-point-right"></i> Detail
+                      </a>
+                      <p className="text-danger">{formatPrice(kelasItem.harga_kelas)}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center">Tidak ada kelas tersedia</p>
+              )}
             </div>
-          </div>
           <div className="text-center btn-akses">
-            <a href="detail_video1.php" className="btn-detail2 mx-2">
-              <i className="fas fa-video mr-1"></i> Akses Video & E-Book
-            </a>
-            <a href="detail_video2.php" className="btn-detail2 mx-2">
-              <i className="fas fa-user-plus mr-1"></i> Daftar Kelas
-            </a>
+            <Link to="/daftar-video" className="btn-detail2 mx-2">
+                <i className="fas fa-video mr-1"></i> Akses Video & E-Book
+            </Link>
+            <Link to="/daftar-kelas" className="btn-detail2 mx-2">
+                <i className="fas fa-user-plus mr-1"></i> Daftar Kelas
+            </Link>
           </div>
         </div>        
+        </div>        
       </section>
+
 
       <section>
         <div className="container about" id="about-us">
@@ -142,19 +244,19 @@ const LandingPage = () => {
           <p>
           Metro Indonesian Software dan MEPCONS SolusiCAD telah bekerja sama untuk menghadirkan pendidikan teknik yang berkualitas tinggi. Dengan pengalaman panjang dalam dunia teknik dan pendidikan, kami berkomitmen untuk menyediakan pembelajaran yang mendalam dan praktis bagi semua peserta. Dari teori hingga praktik, kami memastikan bahwa setiap materi yang kami tawarkan relevan dengan kebutuhan industri saat ini.
           </p>
-        <div class="row text-center mt-5 ">
-          <div class="col-lg-4 col-md-6">
-            <div class="image-box">
+        <div className="row text-center mt-5 ">
+          <div className="col-lg-4 col-md-6">
+            <div className="image-box">
             <img src={personal1} alt="Logo" className="poster-image" />
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="image-box">
+          <div className="col-lg-4 col-md-6">
+            <div className="image-box">
             <img src={personal2} alt="Logo" className="poster-image" />
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
-            <div class="image-box">
+          <div className="col-lg-4 col-md-6">
+            <div className="image-box">
             <img src={personal3} alt="Logo" className="poster-image" />
             </div>
           </div>
@@ -189,7 +291,7 @@ const LandingPage = () => {
               <div className="single_feature text-center">
                 <div className="icon"><i className="fas fa-globe"></i></div>
                 <h4 className="mt-3 mb-2">Akses Fleksibel</h4>
-                <p className="text-light">Belajar dengan kecepatan Anda sendiri. Akses video, ebook, dan kelas kapan saja dan di mana saja.</p><br/>
+                <p className="text-light">Belajar dengan kecepatan Anda sendiri. Akses video, ebook, dan kelas kapan saja dan di mana saja.</p><br/><br/>
               </div>
             </div>
           </div>
@@ -214,12 +316,35 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="testi" id="testimoni">
-        <div className="container">
+      <section className="testi testimonials" id="testimoni">
+      <div className="container">
+        <div className="section-header">
           <h2 className="text-center">Apa Kata Mereka?</h2>
           <p className="text-center mb-5">Dengarkan kisah sukses dari para peserta yang telah meningkatkan keahlian mereka bersama kami.</p>
+
+          <div className="testimonials-content">
+            <Slider {...settings}>
+              {testimoni.reduce((acc, testi, index) => {
+                if (index % 2 === 0) {
+                  acc.push([testi.sampul]); 
+                } else {
+                  acc[acc.length - 1].push(testi.sampul); 
+                }
+                return acc;
+              }, []).map((slideImages, index) => (
+                <div key={index} className="testimonial-slide d-flex justify-content-between">
+                  {slideImages.map((image, imgIndex) => (
+                    <div key={imgIndex} className="testimonials-item">
+                      <img src={image} alt={`Testimonial ${imgIndex + 1}`} className="img-fluid" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </Slider>
+          </div>
         </div>
-      </section>
+      </div>
+    </section>
 
         <section>
           <Footer/>
