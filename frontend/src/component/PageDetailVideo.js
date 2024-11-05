@@ -7,6 +7,7 @@ const PageDetailVideo = () => {
     const { id } = useParams(); // Mengambil id dari URL
     const [videoDetail, setVideoDetail] = useState(null);
 
+    // Mendapatkan detail video
     useEffect(() => {
         const getDetails = async () => {
             try {
@@ -21,7 +22,21 @@ const PageDetailVideo = () => {
     
         getDetails();
     }, [id]);
-    
+
+    // Fungsi hapus file video
+    const deleteVideoFile = async (fileId) => {
+        try {
+            await axios.delete(`http://localhost:8082/api/video-files/${fileId}`);
+            // Mengupdate tampilan setelah penghapusan
+            setVideoDetail((prev) => ({
+                ...prev,
+                files: prev.files.filter(file => file.id_file !== fileId),
+            }));
+            console.log('File video berhasil dihapus');
+        } catch (error) {
+            console.error('Error deleting video file:', error);
+        }
+    };
 
     if (!videoDetail) {
         return <div>Loading...</div>;
@@ -73,7 +88,12 @@ const PageDetailVideo = () => {
                                             <Link to={`/edit-videos/${id}`}>
                                                 <button className="button is-small is-info">Edit</button>
                                             </Link>
-                                            <button className="button is-small is-danger">Hapus</button>
+                                            <button
+                                                onClick={() => deleteVideoFile(file.id_file)}
+                                                className="button is-small is-danger"
+                                            >
+                                                Hapus
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

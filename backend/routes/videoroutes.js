@@ -24,4 +24,7 @@ router.put('/videos/:id_video', upload.fields([
 // Menghapus video
 router.delete('/videos/:id_video', videoController.deleteVideo);
 
+router.post('/videos/:id_video/videoFiles', upload.single('video_file'), videoController.addVideoFile);
+
+
 module.exports = router;

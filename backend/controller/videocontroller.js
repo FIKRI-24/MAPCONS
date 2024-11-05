@@ -164,3 +164,36 @@ exports.deleteVideo = async (req, res) => {
         res.status(500).json({ message: 'Error deleting video', error: error.message });
     }
 };
+
+exports.addVideoFile = async (req, res) => {
+    const { id_video } = req.params; 
+    const { sub_judul } = req.body; 
+
+    try {
+        // Validasi apakah video ada atau tidak
+        const video = await Video.findByPk(id_video);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Mendapatkan file video yang diunggah
+        const videoFile = req.file;
+        if (!videoFile) {
+            return res.status(400).json({ message: 'File video harus diunggah' });
+        }
+
+        // Menambahkan file baru untuk video yang sudah ada
+        const newVideoFile = await VideoFile.create({
+            id_file: uuidv4(),
+            id_video,
+            sub_judul,
+            video_file: `${req.protocol}://${req.get('host')}/uploads/${videoFile.filename}`
+        });
+
+        res.status(201).json({ message: 'File video berhasil ditambahkan', videoFile: newVideoFile });
+    } catch (error) {
+        console.error('Error adding video file:', error);
+        res.status(500).json({ message: 'Error adding video file', error: error.message });
+    }
+};
+
