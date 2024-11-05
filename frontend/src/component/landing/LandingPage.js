@@ -31,9 +31,9 @@ const LandingPage = () => {
                   <Link to="/daftar-kelas" className="primary-btn mt-5 mb-sm-0 me-3">
                       <i className="bi bi-list"></i> Lihat Daftar Kelas
                   </Link>
-                  <a href="courses.php" className="primary-btn mt-3 mb-sm-0">
-                      <i class="bi bi-play-circle"></i> Lihat Daftar Video & E-Book
-                  </a>
+                  <Link to="/daftar-video" className="primary-btn mt-3 mb-sm-0">
+                      <i className="bi bi-play-circle"></i> Lihat Daftar Video & E-Book
+                  </Link>
                   </div>
                 </div>
               </div>
@@ -93,7 +93,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Row menampilkan kelas populer */}
+      {/* Row menampilkan produk populer */}
       <section className="video_section mb-5">
         <div className="container">
           <div className="row video">

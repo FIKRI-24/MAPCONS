@@ -20,7 +20,8 @@ import AddEbook from "./component/AddEbook";
 import EditVideos from "./component/EditVideos";
 import AddTestimoni from "./component/AddTestimoni";
 import LandingPage from "./component/landing/LandingPage";
-import DaftarKelas from "./component/lihat_kelas/DaftarKelas";
+import DaftarKelas from "./component/see/DaftarKelas";
+import DaftarVideo from "./component/see/DaftarVideo";
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
         {/* Landing Page */}
         <Route path="/landing-page" element={<LandingPage/>}/>
         <Route path="/daftar-kelas" element={<DaftarKelas/>}/>
+        <Route path="/daftar-video" element={<DaftarVideo/>}/>
       </Routes>
     </BrowserRouter>
   );
