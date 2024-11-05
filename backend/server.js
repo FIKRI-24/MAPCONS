@@ -7,11 +7,11 @@ const path = require('path');
 const app = express();
 
 // Middleware untuk memudahkan parsing request body (JSON dan URL-encoded)
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Sesuaikan dengan alamat frontend Anda
+  origin: 'http://localhost:3000', 
 }));
 // Menyajikan file statis dari folder 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Selamat datang di aplikasi API kami!' });
 });
 
-// Import dan gunakan routes
+// impor
 const userRoutes = require('./routes/usersroutes.js'); 
 app.use('/api/users', userRoutes); 
 
@@ -37,6 +37,7 @@ app.use('/api/ebooks', tbEbookRoutes);
 
 const videoRoutes = require('./routes/videoroutes.js');
 app.use('/api', videoRoutes);
+
 
 
 

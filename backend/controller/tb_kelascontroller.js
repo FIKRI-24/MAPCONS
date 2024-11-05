@@ -53,15 +53,38 @@ exports.getKelasById = async (req, res) => {
 };
 
 // Fungsi untuk memperbarui kelas
+// Fungsi untuk memperbarui kelas
 exports.updateKelas = async (req, res) => {
     try {
         const { id } = req.params;
-        const [updated] = await Kelas.update(req.body, {
+
+        // Cek apakah file sampul_kelas ada dalam request
+        const sampulKelas = req.file ? req.file.filename : null;
+
+        // Buat URL untuk sampul_kelas jika ada file yang di-upload
+        const sampulKelasUrl = sampulKelas ? `${req.protocol}://${req.get('host')}/uploads/${sampulKelas}` : null;
+
+        // Ambil data kelas yang akan diperbarui
+        const kelas = await Kelas.findByPk(id);
+        if (!kelas) {
+            return res.status(404).json({ message: 'Kelas tidak ditemukan' });
+        }
+
+        // Data yang akan diupdate
+        const updateData = {
+            ...req.body, // Semua data dari req.body
+            sampul_kelas: sampulKelasUrl || kelas.sampul_kelas // Jika ada sampul baru, gunakan URL baru; jika tidak, pertahankan URL lama
+        };
+
+        // Perbarui data kelas
+        const [updated] = await Kelas.update(updateData, {
             where: { id_kelas: id }
         });
+
         if (!updated) {
             return res.status(404).json({ message: 'Kelas tidak ditemukan' });
         }
+
         return res.status(200).json({ message: 'Kelas berhasil diperbarui' });
     } catch (error) {
         console.error(error);
