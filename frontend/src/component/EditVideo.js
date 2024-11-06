@@ -1,34 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import SidebarList from './SidebarList';
-import { Link } from 'react-router-dom';
 
 const EditVideo = () => {
-    const { id } = useParams(); // Ambil ID dari URL
+    const { id } = useParams();
     const navigate = useNavigate();
+    
     const [videoData, setVideoData] = useState({
         judul_video: '',
         keterangan_video: '',
-        sampul_video: null, // Ubah ini menjadi null untuk menampung file
+        sampul_video: null,
         harga_video: ''
     });
-    
 
-    // Mengambil data video berdasarkan ID
-    useEffect(() => {
-        const fetchVideo = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8082/api/videos/${id}`);
-                setVideoData(response.data);
-            } catch (error) {
-                console.error('Error fetching video details:', error);
-            }
-        };
-        fetchVideo();
+    const fetchVideo = useCallback(async () => {
+        try {
+            const response = await axios.get(`http://localhost:8082/api/videos/${id}`);
+            setVideoData(response.data);
+        } catch (error) {
+            console.error('Error fetching video details:', error);
+        }
     }, [id]);
 
-    // Menangani perubahan input
+    useEffect(() => {
+        fetchVideo();
+    }, [fetchVideo]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setVideoData((prevData) => ({
@@ -37,25 +35,20 @@ const EditVideo = () => {
         }));
     };
 
-    // Menangani perubahan file untuk sampul_video
     const handleFileChange = (e) => {
         setVideoData((prevData) => ({
             ...prevData,
-            sampul_video: e.target.files[0], // Simpan file yang diupload
+            sampul_video: e.target.files[0],
         }));
     };
 
-    // Menangani submit formulir
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
-        
-        // Menambahkan data ke FormData
         formData.append('judul_video', videoData.judul_video);
         formData.append('keterangan_video', videoData.keterangan_video);
         formData.append('harga_video', videoData.harga_video);
-        
-        // Jika ada file yang diupload, tambahkan ke FormData
+
         if (videoData.sampul_video) {
             formData.append('sampul_video', videoData.sampul_video);
         }
@@ -63,25 +56,25 @@ const EditVideo = () => {
         try {
             await axios.put(`http://localhost:8082/api/videos/${id}`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data' // Mengatur header untuk form data
+                    'Content-Type': 'multipart/form-data'
                 }
             });
-            navigate('/videos'); // Kembali ke halaman daftar video setelah sukses
+            navigate('/video');
         } catch (error) {
-            console.error('Error updating video:', error.response.data); // Tampilkan respons dari server
+            console.error('Error updating video:', error.response?.data || error.message);
         }
     };
 
     return (
         <div className="dashboard">
-            {/* Sidebar */}
             <SidebarList />
-            <div className="content" style={{ backgroundColor: 'white', padding: '20px' }}>
+            <div className="content" style={{ padding: '30px' }}>
                 <Link to="/video">
-                        <button className="button is-warning">Kembali</button>
+                    <button className="button is-warning">Kembali</button>
                 </Link>
-                <h1 className="has-text-black text-center">Form Edit Video</h1>
-                <form onSubmit={handleSubmit}>
+                <h2 className="text-center">Form Edit Video</h2>
+
+                <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto' }}>
                     <div className="field">
                         <label className="label">Judul Video</label>
                         <div className="control">
@@ -95,6 +88,7 @@ const EditVideo = () => {
                             />
                         </div>
                     </div>
+                    
                     <div className="field">
                         <label className="label">Keterangan Video</label>
                         <div className="control">
@@ -107,18 +101,20 @@ const EditVideo = () => {
                             />
                         </div>
                     </div>
+
                     <div className="field">
-                        <label className="label">Sampul Video (Upload File)</label>
+                        <label className="label">Sampul Video</label>
                         <div className="control">
                             <input
                                 type="file"
                                 className="input"
                                 name="sampul_video"
-                                onChange={handleFileChange} // Panggil handleFileChange
-                                accept="image/*" // Hanya menerima file gambar
+                                onChange={handleFileChange}
+                                accept="image/*"
                             />
                         </div>
                     </div>
+                    
                     <div className="field">
                         <label className="label">Harga Video</label>
                         <div className="control">
@@ -132,8 +128,11 @@ const EditVideo = () => {
                             />
                         </div>
                     </div>
-                    <div className="control">
-                        <button type="submit" className="button is-primary">Update</button>
+
+                    <div className="field">
+                        <div className="control">
+                            <button type="submit" className="button is-primary">Update Video</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -142,5 +141,3 @@ const EditVideo = () => {
 };
 
 export default EditVideo;
-
-///ARRRGGHHHHHHHH

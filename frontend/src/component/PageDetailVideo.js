@@ -1,87 +1,90 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import SidebarList from './SidebarList';
-import { Link, useParams } from 'react-router-dom'; 
+import { Link, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const PageDetailVideo = () => {
-    const { id_video } = useParams();
-    console.log("ID Video:", id_video); // Debugging
-    const [video, setVideo] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    const getVideoByPk = useCallback(async () => {
-        try {
-            const response = await axios.get(`http://localhost:8082/api/videos/${id_video}`);
-            console.log("Response Data:", response.data); // Debugging
-            setVideo(response.data);
-        } catch (error) {
-            console.error('Error fetching video:', error.response ? error.response.data : error.message);
-            setError('Terjadi kesalahan saat mengambil data video.');
-        } finally {
-            setLoading(false);
-        }
-    }, [id_video]);
+    const { id } = useParams(); // Mengambil id dari URL
+    const [videoDetail, setVideoDetail] = useState(null);
 
     useEffect(() => {
-        getVideoByPk();
-    }, [getVideoByPk]);
+        const getDetails = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8082/api/videos/${id}`);
+                console.log("Response data:", response.data); 
+                
+                setVideoDetail(response.data);
+            } catch (error) {
+                console.error('Error fetching video details:', error); 
+            }
+        };        
+    
+        getDetails();
+    }, [id]);
+    
 
-    if (loading) {
-        return <div>Loading...</div>; 
-    }
-
-    if (error) {
-        return <div>{error}</div>; 
-    }
-
-    if (!video) {
-        return <div>Video tidak ditemukan.</div>; 
+    if (!videoDetail) {
+        return <div>Loading...</div>;
     }
 
     return (
         <div className="dashboard">
+            {/* Sidebar */}
             <SidebarList />
+
+            {/* Content Area */}
             <div className="content" style={{ backgroundColor: 'white', padding: '20px' }}>
                 <h1 className="has-text-black text-center">Detail Video</h1>
+                
                 <div style={{ marginBottom: '20px' }}>
-                    <Link to="/videos">
+                    <Link to="/video">
                         <button className="button is-warning">Kembali</button>
                     </Link>
-                    <Link to="/add-videos">
+                    <Link to={`/add-videos/${id}`}>
                         <button className="button is-primary ml-3">Tambah Video</button>
                     </Link>
                 </div>
-                <table className="table is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Sub Judul</th>
-                            <th>File Video</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {video.file.map((file, index) => (
-                            <tr key={file.video_file}>
-                                <td>{index + 1}</td>
-                                <td>{file.sub_judul}</td>
-                                <td>
-                                    <video width="320" height="240" controls>
-                                        <source src={file.video_file} type="video/mp4" />
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </td>
-                                <td>
-                                    <Link to={`/edit-videos/${file.video_file}`}>
-                                        <button className="button is-small is-info">Edit</button>
-                                    </Link>
-                                    <button className="button is-small is-danger">Hapus</button>
-                                </td>
+
+                {/* Tampilkan Detail Video */}
+                <div>
+                    {/* Tabel Data VideoFiles */}
+                    <table className="table is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Sub Judul</th>
+                                <th>File Video</th>
+                                <th>Aksi</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {videoDetail.files && videoDetail.files.length > 0 ? (
+                                videoDetail.files.map((file, index) => (
+                                    <tr key={file.id_file || index}>
+                                        <td>{index + 1}</td>
+                                        <td>{file.sub_judul || 'Sub judul tidak tersedia'}</td>
+                                        <td>
+                                            <video width="320" height="240" controls>
+                                                <source src={file.video_file} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </td>
+                                        <td>
+                                            <Link to={`/edit-videos/${id}`}>
+                                                <button className="button is-small is-info">Edit</button>
+                                            </Link>
+                                            <button className="button is-small is-danger">Hapus</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" className="has-text-centered">Tidak ada file video untuk video ini</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

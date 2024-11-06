@@ -16,8 +16,9 @@ exports.createVideo = async (req, res) => {
             : null;
 
         // Generate UUID untuk id_video secara manual
+        const id_video = uuidv4(); // Generate id_video
         const newVideo = await Video.create({
-            id_video: uuidv4(),  // Set id_video dengan UUID manual
+            id_video,  // Set id_video dengan UUID manual
             judul_video,
             keterangan_video,
             harga_video,
@@ -27,7 +28,7 @@ exports.createVideo = async (req, res) => {
         if (req.files['video_file']) {
             const videoFiles = req.files['video_file'].map(file => ({
                 id_file: uuidv4(),  // Set id_file dengan UUID manual untuk setiap video file
-                id_video: newVideo.id_video,
+                id_video, // Pastikan menggunakan id_video yang sama
                 sub_judul: file.originalname,
                 video_file: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
             }));
@@ -59,30 +60,40 @@ exports.getAllVideos = async (req, res) => {
     }
 };
 
-// Mendapatkan video berdasarkan ID
+
 // Mendapatkan video berdasarkan ID
 exports.getDetailVideo = async (req, res) => {
     const videoId = req.params.id_video.trim();
-    console.log("Mencari video dengan ID:", videoId);  // Tambahkan log ini
+    console.log("Mencari video dengan ID:", videoId);  
 
     try {
         const video = await Video.findOne({
             where: { id_video: videoId },
+            attributes: ['id_video'],  
             include: [
                 {
                     model: VideoFile,
                     as: 'file',
-                    attributes: ['id_file', 'sub_judul', 'video_file'],
+                    attributes: ['sub_judul', 'video_file'],  
                 },
             ],
         });
 
         if (!video) {
-            console.log("Video tidak ditemukan");  // Log jika video tidak ditemukan
+            console.log("Video tidak ditemukan");  
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        res.json(video);
+    
+        const responseData = {
+            id_video: video.id_video,
+            files: video.file.map(f => ({
+                sub_judul: f.sub_judul,
+                video_file: f.video_file,
+            })),
+        };
+
+        res.json(responseData); 
     } catch (error) {
         console.error('Error retrieving video:', error);
         res.status(500).json({ message: 'Error retrieving video', error: error.message });
@@ -134,24 +145,55 @@ exports.updateVideo = async (req, res) => {
 };
 
 exports.deleteVideo = async (req, res) => {
-    const videoId = req.params.id_video.trim();
+    const { id_video } = req.params;
 
     try {
-        // Mencari video berdasarkan id_video
-        const video = await Video.findByPk(videoId);
-        if (!video) {
+        // Hapus file video terkait jika ada
+        await VideoFile.destroy({ where: { id_video } });
+
+        // Hapus video dari tabel tb_video
+        const result = await Video.destroy({ where: { id_video } });
+
+        if (result === 0) {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Menghapus file terkait dalam VideoFile berdasarkan id_video
-        await VideoFile.destroy({ where: { id_video: videoId } });
-
-        // Menghapus entri utama video
-        await video.destroy();
-
-        res.status(200).json({ message: 'Video and related files deleted successfully' });
+        res.status(200).json({ message: 'Video deleted successfully' });
     } catch (error) {
         console.error('Error deleting video:', error);
         res.status(500).json({ message: 'Error deleting video', error: error.message });
     }
 };
+
+exports.addVideoFile = async (req, res) => {
+    const { id_video } = req.params; 
+    const { sub_judul } = req.body; 
+
+    try {
+        // Validasi apakah video ada atau tidak
+        const video = await Video.findByPk(id_video);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Mendapatkan file video yang diunggah
+        const videoFile = req.file;
+        if (!videoFile) {
+            return res.status(400).json({ message: 'File video harus diunggah' });
+        }
+
+        // Menambahkan file baru untuk video yang sudah ada
+        const newVideoFile = await VideoFile.create({
+            id_file: uuidv4(),
+            id_video,
+            sub_judul,
+            video_file: `${req.protocol}://${req.get('host')}/uploads/${videoFile.filename}`
+        });
+
+        res.status(201).json({ message: 'File video berhasil ditambahkan', videoFile: newVideoFile });
+    } catch (error) {
+        console.error('Error adding video file:', error);
+        res.status(500).json({ message: 'Error adding video file', error: error.message });
+    }
+};
+

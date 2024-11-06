@@ -13,26 +13,6 @@ const AddKelas = () => {
     const [harga_kelas, setHargaKelas] = useState('');
     const [sampul_kelas, setSampulKelas] = useState(null);
     const navigate = useNavigate();
-  
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     console.log("Kelas berhasil ditambahkan");
-    //     console.log({ judul_kelas, deskripsi_kelas, jadwal, harga_kelas, sampul_kelas});
-    //     try {
-    //       await axios.post(API_URL + "kelas", {
-    //         judul_kelas: judul_kelas,
-    //         deskripsi_kelas: deskripsi_kelas,
-    //         jadwal: jadwal,
-    //         harga_kelas: harga_kelas,
-    //         sampul_kelas: sampul_kelas,
-    //       });
-    //       navigate("/kelas");
-    //     } catch (error) {
-    //       if (error.response) {
-    //         setMsg(error.response.data.msg);
-    //       }
-    //     }
-    //   };  
     
     const handleSubmit = async (e) => {
         e.preventDefault();

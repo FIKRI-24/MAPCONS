@@ -6,30 +6,36 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4
+      defaultValue: uuidv4,
     },
     sampul_video: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     judul_video: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     keterangan_video: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     harga_video: {
       type: DataTypes.DECIMAL,
-      allowNull: true
-    }
+      allowNull: true,
+    },
   }, {
     timestamps: false,
-    tableName: 'tb_video'
+    tableName: 'tb_video',
   });
 
-  
+  Video.associate = (models) => {
+    Video.hasMany(models.VideoFile, {
+      foreignKey: 'id_video',
+      sourceKey: 'id_video',
+      as: 'file',
+    });
+  };
 
   return Video;
 };
