@@ -1,14 +1,15 @@
 const { v4: uuidv4 } = require('uuid');
+
 module.exports = (sequelize, DataTypes) => {
   const VideoFile = sequelize.define('VideoFile', {
     id_file: {
-      type: DataTypes.STRING,  
+      type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false,
-      defaultValue: uuidv4  
+      defaultValue: uuidv4
     },
     id_video: {
-      type: DataTypes.STRING,  
+      type: DataTypes.STRING,
       allowNull: false
     },
     sub_judul: {
@@ -21,7 +22,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: false,
-    tableName: 'video_file' 
+    tableName: 'video_file'
   });
+
+  
+
   return VideoFile;
 };

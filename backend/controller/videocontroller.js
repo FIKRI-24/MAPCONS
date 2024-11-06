@@ -1,5 +1,6 @@
 const db = require('../models');
 const { Video, VideoFile } = db;
+const { v4: uuidv4 } = require('uuid');
 
 // Menyimpan video baru
 exports.createVideo = async (req, res) => {
@@ -14,26 +15,24 @@ exports.createVideo = async (req, res) => {
             ? `${req.protocol}://${req.get('host')}/uploads/${req.files['sampul_video'][0].filename}`
             : null;
 
+        // Generate UUID untuk id_video secara manual
         const newVideo = await Video.create({
+            id_video: uuidv4(),  // Set id_video dengan UUID manual
             judul_video,
             keterangan_video,
             harga_video,
             sampul_video: sampulVideoUrl,
         });
 
-        const videoFiles = req.files['video_file'];
-        if (videoFiles && videoFiles.length > 0) {
-            const videoFilePromises = videoFiles.map(file => {
-                const videoUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        if (req.files['video_file']) {
+            const videoFiles = req.files['video_file'].map(file => ({
+                id_file: uuidv4(),  // Set id_file dengan UUID manual untuk setiap video file
+                id_video: newVideo.id_video,
+                sub_judul: file.originalname,
+                video_file: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+            }));
 
-                return VideoFile.create({
-                    id_video: newVideo.id_video,
-                    sub_judul: file.originalname,
-                    video_file: videoUrl,
-                });
-            });
-
-            await Promise.all(videoFilePromises);
+            await VideoFile.bulkCreate(videoFiles);
         }
 
         res.status(201).json({ message: 'Video added successfully', video: newVideo });
@@ -50,7 +49,7 @@ exports.getAllVideos = async (req, res) => {
             include: {
                 model: VideoFile,
                 as: 'file',
-                attributes: ['id_file', 'id_video', 'sub_judul', 'video_file'], // Tampilkan id_file dan atribut lain
+                attributes: ['id_file', 'id_video', 'sub_judul', 'video_file'],
             },
         });
         res.status(200).json(videos);
@@ -61,8 +60,10 @@ exports.getAllVideos = async (req, res) => {
 };
 
 // Mendapatkan video berdasarkan ID
+// Mendapatkan video berdasarkan ID
 exports.getDetailVideo = async (req, res) => {
-    const videoId = req.params.id_video.trim(); // Ganti sesuai parameter ID
+    const videoId = req.params.id_video.trim();
+    console.log("Mencari video dengan ID:", videoId);  // Tambahkan log ini
 
     try {
         const video = await Video.findOne({
@@ -70,71 +71,59 @@ exports.getDetailVideo = async (req, res) => {
             include: [
                 {
                     model: VideoFile,
-                    as: 'file', // Sesuaikan dengan alias di asosiasi
-                    attributes: ['sub_judul', 'video_file'], // Hanya ambil sub_judul dan video_file
+                    as: 'file',
+                    attributes: ['id_file', 'sub_judul', 'video_file'],
                 },
             ],
         });
-        
+
         if (!video) {
+            console.log("Video tidak ditemukan");  // Log jika video tidak ditemukan
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Mengubah respons untuk hanya menampilkan sub_judul dan video_file
-        const responseData = {
-            id_video: video.id_video,
-            file: video.file.map(f => ({
-                sub_judul: f.sub_judul,
-                video_file: f.video_file
-            }))
-        };
-        
-        return res.json(responseData);
+        res.json(video);
     } catch (error) {
         console.error('Error retrieving video:', error);
-        return res.status(500).json({ message: 'Error retrieving video' });
+        res.status(500).json({ message: 'Error retrieving video', error: error.message });
     }
 };
 
-
-// Edit Video
 exports.updateVideo = async (req, res) => {
-    const { id } = req.params;
+    const videoId = req.params.id_video.trim();
     const { judul_video, keterangan_video, harga_video } = req.body;
-    const videoFiles = req.files['video_file'];
 
     try {
-        const video = await Video.findByPk(id);
+        // Mencari video berdasarkan id_video
+        const video = await Video.findByPk(videoId);
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        video.judul_video = judul_video;
-        video.keterangan_video = keterangan_video;
-        video.harga_video = harga_video;
-
+        // Update data utama dari video
+        video.judul_video = judul_video || video.judul_video;
+        video.keterangan_video = keterangan_video || video.keterangan_video;
+        video.harga_video = harga_video || video.harga_video;
+        
+        if (req.files['sampul_video']) {
+            video.sampul_video = `${req.protocol}://${req.get('host')}/uploads/${req.files['sampul_video'][0].filename}`;
+        }
+        
         await video.save();
 
-        const sampulVideoFile = req.files['sampul_video'];
-        if (sampulVideoFile && sampulVideoFile.length > 0) {
-            const sampulUrl = `${req.protocol}://${req.get('host')}/uploads/${sampulVideoFile[0].filename}`;
-            await video.update({ sampul_video: sampulUrl });
-        }
+        // Update atau Tambahkan VideoFile jika ada file baru yang di-upload
+        if (req.files['video_file']) {
+            const updatedFiles = req.files['video_file'].map(file => ({
+                id_video: video.id_video,
+                sub_judul: file.originalname,
+                video_file: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+            }));
 
-        if (videoFiles && videoFiles.length > 0) {
-            await VideoFile.destroy({ where: { id_video: id } });
+            // Menghapus file video lama terlebih dahulu
+            await VideoFile.destroy({ where: { id_video: videoId } });
 
-            const videoFilePromises = videoFiles.map(file => {
-                const videoUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
-                
-                return VideoFile.create({
-                    id_video: id,
-                    sub_judul: file.originalname,
-                    video_file: videoUrl,
-                });
-            });
-
-            await Promise.all(videoFilePromises);
+            // Menambahkan file video baru
+            await VideoFile.bulkCreate(updatedFiles);
         }
 
         res.status(200).json({ message: 'Video updated successfully', video });
@@ -144,17 +133,20 @@ exports.updateVideo = async (req, res) => {
     }
 };
 
-// Hapus Video
 exports.deleteVideo = async (req, res) => {
-    const { id } = req.params;
+    const videoId = req.params.id_video.trim();
 
     try {
-        const video = await Video.findByPk(id);
+        // Mencari video berdasarkan id_video
+        const video = await Video.findByPk(videoId);
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        await VideoFile.destroy({ where: { id_video: id } });
+        // Menghapus file terkait dalam VideoFile berdasarkan id_video
+        await VideoFile.destroy({ where: { id_video: videoId } });
+
+        // Menghapus entri utama video
         await video.destroy();
 
         res.status(200).json({ message: 'Video and related files deleted successfully' });
@@ -163,4 +155,3 @@ exports.deleteVideo = async (req, res) => {
         res.status(500).json({ message: 'Error deleting video', error: error.message });
     }
 };
-/////
